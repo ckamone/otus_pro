@@ -1,0 +1,7 @@
+Django==4.1.4
+django_debug_toolbar==3.8.1
+python-dotenv==0.21.1
+psycopg2-binary==2.9.5
+gunicorn==20.1.0
+celery==5.2.7
+Pillow==9.5.0

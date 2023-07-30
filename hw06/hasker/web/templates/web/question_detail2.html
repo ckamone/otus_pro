@@ -1,0 +1,75 @@
+{% extends 'root.html' %}
+{% block title %}
+Question detail
+{% endblock %}
+{% block content %}
+
+<h1><a href="{% url 'ask_list' %}">New question</a> | <a href="{% url 'hot_list' %}">Hot questions</a></h1>
+
+<hr>
+{# .... **Normal content list, maybe a table** .... #}
+<h1>{{ question.question_obj.title }}<br></h1>
+<table class="table" id="questions">
+    <tr>
+        <td><form class="d-flex" method=POST >
+            {% csrf_token %}
+            <button class="btn btn-outline-success" type="submit" name="voteup" value="q_{{question.question_obj.pk }}">⇧</button>
+          </form>
+            {{ question.votes }}<br>
+            <form class="d-flex" method=POST >
+                {% csrf_token %}
+                <button class="btn btn-outline-danger" type="submit" name="votedown" value="q_{{question.question_obj.pk }}">⇩</button>
+              </form><br>{% for tag in tags %}<button>{{tag}}</button> {% endfor %}</td>
+        <td>{{ question.question_obj.text }}<br><br><img src='/media/{{question.avatar}}' width="25" height="25"/> {{ question.question_obj.author }}</td>
+    </tr>
+
+</table>
+{% if page_obj %}
+<h3>Replies:</h3>
+{% for reply in page_obj %}
+    <table class="table" id="questions">
+        <tr>
+            <td><form class="d-flex" method=POST>
+                {% csrf_token %}
+                <button class="btn btn-outline-success" type="submit" name="voteup" value="r_{{reply.reply_obj.pk }}">⇧</button>
+              </form>
+              {{ reply.votes }}<br>
+                <form class="d-flex" method=POST >
+                    {% csrf_token %}
+                    <button class="btn btn-outline-danger" type="submit" name="votedown" value="r_{{reply.reply_obj.pk }}">⇩</button>
+                  </form><br>{{ reply.reply_obj.created_at }}</td>
+
+            <td>{{ reply.reply_obj.text }}<br><br><img src='/media/{{reply.avatar}}' width="25" height="25"/> {{ reply.reply_obj.author }}
+            <br><br>{% if reply.correct%}correct{%else%}<a href="{%url 'mark_correct' pk=reply.reply_obj.pk%}">mark as correct</a>{%endif%}
+            </td>
+        </tr>
+    </table>
+{% endfor %}
+    {# .... **Now the pagination section** .... #}
+
+        <div class="pagination">
+            <span class="page-links">
+                {% if page_obj.has_previous %}
+                    <a href="/?page={{ page_obj.previous_page_number }}">newer</a>
+                {% endif %}
+                <span class="page-current">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                </span>
+                {% if page_obj.has_next %}
+                    <a href="/?page={{ page_obj.next_page_number }}">older</a>
+                {% endif %}
+            </span>
+        </div>
+
+{% else %}
+    <h3>Replies:</h3>
+    <p>No replies found!!! :(</p>
+{% endif %}
+<hr>
+<form class="d-flex" method=POST >
+    {% csrf_token %}
+    <input class="form-control me-2" type="search" placeholder="Add Reply" aria-label="Search" name="replied">
+    <button class="btn btn-outline-primary" type="submit">Submit</button>
+  </form>
+{# .... **More content, footer, etc.** .... #}
+{% endblock %}

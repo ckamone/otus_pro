@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>
+        {% block title %}
+            Pagename
+        {% endblock %}
+    </title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css'%}">
+    <link href="{% static 'css/sidebars.css' %}" rel="stylesheet">
+        {% block head %}
+
+        {% endblock %}
+</head>
+<body>
+  
+<!--TOOLBAR-->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <!-- div is an HTML element that groups other elements of the page together -->
+      <div class="container-fluid"> <!--  Use .container-fluid for a full width container, spanning the entire width of the viewport. -->
+        <div class="container">
+          <div class="row">
+            <div class="col-sm">
+              <a class="navbar-brand col-1 col-lg-auto" href="{% url 'ask_list' %}">Hasker</a>
+            </div>
+            <div class="col-sm">
+              <form class="d-flex" method=POST action="{%url 'search'%}">
+                {% csrf_token %}
+                <input class="form-control me-2" type="search" placeholder="Search Questions" aria-label="Search" name="searched">
+                <button class="btn btn-outline-primary" type="submit">Search</button>
+              </form>
+            </div>
+            <div class="col-sm">
+            </div>
+          </div>
+        </div>
+        
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent"> <!-- кнопка для раскрытия и скрытия контента-->
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0"> <!-- The <ul> HTML element represents an unordered list of items, typically rendered as a bulleted list.15 апр-->
+
+            {% if user.is_authenticated %}
+                <li class="nav-item"> <!-- HTML-элемент <li> используется для создания элементов списка-->
+                    <a class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" href="{% url 'profile' pk=user.pk %}">{{ user.username }}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'logout' %}active{% endif %}" href="{% url 'logout' %}">Logout</a>
+                </li>
+            {% else %}
+                <li class="nav-item col-12 col-lg-auto">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'registration' %}active{% endif %}" href="{% url 'registration' %}">Registration</a>
+                </li>
+                <li class="nav-item col-12 col-lg-auto">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'login' %}active{% endif %}" href="{% url 'login' %}">Login</a>
+                </li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+
+    <div class="container">
+      <div class="row">
+        <div class="col-10">
+
+          {% block content %}
+
+          {% endblock %}
+        </div>
+
+          <div class="col"><br><a href="{% url 'ask_create' %}"><button class="btn btn-outline-primary" type="submit">Ask!</button></a><br>
+            <br><h3>Trending</h3>
+            <div id="trends"></div>
+
+                        <script defer>
+                          const item = document.getElementById("trends");
+                          fetch("{%url 'get_trending'%}")
+                          .then(response => response.json())
+                          .then(json => {
+                            for (let i = 0; ; i++) {
+                              rating = json[i]['rating']
+                              title = json[i]['title']
+                              item.innerHTML+=`${rating} ${title}<br>`
+                            }
+                          }
+                          )
+                        </script>
+
+          </div>
+        </div></div>
+     <!--
+<main class="d-flex flex-nowrap">
+  <h1 class="visually-hidden">Sidebar</h1>
+
+
+
+
+
+<div class="container">
+  <div class="row">
+    <div class="col">
+
+    </div>
+    <div class="col-3">
+
+
+      <div class="flex-shrink-0 p-3" style="width: 280px;">
+
+        <ul class="list-unstyled ps-0">
+          <li class="mb-1">
+            <a href="{% url 'ask_create' %}"><button class="btn btn-outline-primary" type="submit">Ask!</button></a>
+          </li>
+          <li class="border-top my-3"></li>
+          <li class="mb-1">
+            Trending
+          </li>
+          <li class="border-top my-3"></li>
+          <li class="mb-1">
+            <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-toggle="collapse" data-bs-target="#home-collapse" aria-expanded="true">
+              Home
+            </button>
+            <div class="collapse show" id="home-collapse">
+              <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Overview</a></li>
+                <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Updates</a></li>
+                <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Reports</a></li>
+              </ul>
+            </div>
+          </li>
+          <li class="border-top my-3"></li>
+          <li class="mb-1">
+            <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-toggle="collapse" data-bs-target="#dashboard-collapse" aria-expanded="false">
+              Dashboard
+            </button>
+            <div class="collapse" id="dashboard-collapse">
+              <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Overview</a></li>
+                <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Weekly</a></li>
+                <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Monthly</a></li>
+                <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Annually</a></li>
+              </ul>
+            </div>
+          </li>
+          <li class="border-top my-3"></li>
+          <li class="mb-1">
+            <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-toggle="collapse" data-bs-target="#orders-collapse" aria-expanded="false">
+              Orders
+            </button>
+            <div class="collapse" id="orders-collapse">
+              <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">New</a></li>
+                <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Processed</a></li>
+                <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Shipped</a></li>
+                <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Returned</a></li>
+              </ul>
+            </div>
+          </li>
+          <li class="border-top my-3"></li>
+    
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+</main>-->
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+
+<script src="{% static 'js/sidebars.js' %}"></script>
+<script>
+
+</script>
+</body>
+</html>

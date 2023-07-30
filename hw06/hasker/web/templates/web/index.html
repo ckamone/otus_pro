@@ -1,0 +1,12 @@
+{% extends 'root.html' %}
+{% block title %}
+    Home page
+{% endblock %}
+{% block content %}
+    <h1>Questions</h1>
+    {% if user.is_authenticated %}
+    <span>
+        <a href="{% url 'ask_create' %}"><button type="submit">Ask</button></a>
+    </span>
+    {% endif %}
+{% endblock %}

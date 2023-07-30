@@ -1,0 +1,18 @@
+{% extends 'root.html' %}
+{% block title %}
+    Registration
+{% endblock %}
+{% block content %}
+
+    <h2>Setting</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        Login: {{ object.username }}<br>
+        Email: {{ form.email }}<br>
+        <img src='/media/{{avatar}}' width="150" height="150" /><br>
+        current avatar: {{ avatar }}<br>
+        Avatar: {{ form.avatar }}<br>
+        <button type="submit">Submit</button>
+    </form>
+
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends 'root.html' %}
+{% block title %}
+    Questions
+{% endblock %}
+{% block content %}
+
+<h1><a href="{% url 'ask_list' %}">New questions</a> | <a href="{% url 'login' %}">Hot questions</a></h1>
+
+<hr>
+{# .... **Normal content list, maybe a table** .... #}
+{% if object_list %}
+    <table class="table" id="questions">
+        {% for question in object_list %}
+            <tr>
+                <td>{{ question.votes }}<br>votes</td>
+                <td>{{ question.votes }}<br>replies</td>
+                <td><a href="{% url 'ask_detail' pk=question.pk %}">{{ question.title }}</a></td>
+                <td><a href="{% url 'profile-detail' pk=question.author.pk %}">{{ question.author }}</a></td>
+                <td>{{ question.created_at }}</td>
+                <td>{% for tag in question.tags.all %}
+                    <button type="submit">{{ tag.tag_name }}</button> 
+                    {% endfor %}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+    {# .... **Now the pagination section** .... #}
+    {% if is_paginated %}
+        <div class="pagination">
+            <span class="page-links">
+                {% if page_obj.has_previous %}
+                    <a href="/?page={{ page_obj.previous_page_number }}">newer</a>
+                {% endif %}
+                <span class="page-current">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                </span>
+                {% if page_obj.has_next %}
+                    <a href="/?page={{ page_obj.next_page_number }}">older</a>
+                {% endif %}
+            </span>
+        </div>
+    {% endif %}
+{% else %}
+    <h3>Questions</h3>
+    <p>No questions found!!! :(</p>
+{% endif %}
+{# .... **More content, footer, etc.** .... #}
+{% endblock %}

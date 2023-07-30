@@ -1,0 +1,13 @@
+{% extends 'root.html' %}
+{% block title %}
+    Questions
+{% endblock %}
+{% block content %}
+    <h2>New questions:</h2>
+    <ul>
+        {% for el in object_list %}
+            <li>{{ el.tag_name }}</li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'tag_create' %}"><button type="submit">add tag</button></a>
+{% endblock %}

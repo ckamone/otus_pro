@@ -1,0 +1,12 @@
+{% extends 'root.html' %}
+{% block title %}
+    Question info
+{% endblock %}
+{% block content %}
+    <h2>{{ object.title }}</h2>
+    <ul>
+        <li>{{ object.text }}</li>
+        <li>{{ object.created_at }} | {% for tag in object.tags.all %}<button type="submit">{{ tag.tag_name }}</button> {%endfor%} | <a href="{% url 'profile-detail' pk=question.author.pk %}">{{ object.author }}</a></li>
+    </ul>
+
+{% endblock %}

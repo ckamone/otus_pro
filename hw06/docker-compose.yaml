@@ -1,0 +1,64 @@
+services:
+  db:
+    image: postgres
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports: # видно из сети
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - db_network
+
+  django:
+    build:
+      dockerfile: ./Dockerfile
+    volumes:
+      - static:/static
+    expose: # видно другим контейнерам
+      - 8000
+    networks:
+      - nginx_network
+      - db_network
+      - rmq_network
+    env_file:
+      - hasker/.env
+    depends_on:
+      - db
+
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    volumes:
+      - static:/static
+    ports: # видно из сети
+      - "80:80"
+    depends_on:
+      - django
+    networks:
+      - nginx_network
+
+  rabbit:
+    image: "rabbitmq:3-management"
+    expose: # видно другим контейнерам
+      - 5672
+    ports: # видно из сети
+      - "8080:15672" # admin page (guest, guest)
+    networks:
+      - rmq_network
+    depends_on:
+      - django
+
+networks:
+  nginx_network:
+    driver: bridge
+  db_network:
+    driver: bridge
+  rmq_network:
+    driver: bridge
+
+volumes:
+  pg_data:
+  static:
