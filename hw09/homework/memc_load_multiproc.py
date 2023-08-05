@@ -58,7 +58,7 @@ def insert_appsinstalled(memc_pool, memc_addr, appsinstalled, dry_run=False):
                 time.sleep(backoff_value)
             memc_pool.put(memc)
             return ok
-    except Exception, e:
+    except Exception as e:
         logging.exception("Cannot write to memc %s: %s" % (memc_addr, e))
         return False
     return True
@@ -210,6 +210,6 @@ if __name__ == '__main__':
     logging.info("Memc loader started with options: %s" % opts)
     try:
         main(opts)
-    except Exception, e:
+    except Exception as e:
         logging.exception("Unexpected error: %s" % e)
         sys.exit(1)
