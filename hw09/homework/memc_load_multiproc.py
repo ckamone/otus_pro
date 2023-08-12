@@ -10,7 +10,7 @@ from optparse import OptionParser
 import appsinstalled_pb2
 import memcache
 import threading
-import Queue
+import queue
 import multiprocessing
 from functools import partial
 import time
@@ -47,25 +47,25 @@ def insert_appsinstalled(memc_pool, memc_addr, appsinstalled, dry_run=False):
         else:
             try:
                 memc = memc_pool.get(timeout=0.1)
-            except Queue.Empty:
+            except queue.Empty:
                 memc = memcache.Client([memc_addr], socket_timeout=config['MEMC_TIMEOUT'])
             ok = False
             for n in range(config['MEMC_MAX_RETRIES']):
-                ok = memc.set(key, packed)
+                ok = memc.set_multi(key, packed)
                 if ok:
                     break
                 backoff_value = config['MEMC_BACKOFF_FACTOR'] * (2 ** n)
                 time.sleep(backoff_value)
             memc_pool.put(memc)
             return ok
-    except Exception as e:
+    except MemcacheError as e:
         logging.exception("Cannot write to memc %s: %s" % (memc_addr, e))
         return False
     return True
 
 
 def parse_appsinstalled(line):
-    line_parts = line.strip().split("\t")
+    line_parts = line.decode().strip().split("\t")
     if len(line_parts) < 5:
         return
     dev_type, dev_id, lat, lon, raw_apps = line_parts
@@ -88,7 +88,7 @@ def handle_task(job_queue, result_queue):
     while True:
         try:
             task = job_queue.get(timeout=0.1)
-        except Queue.Empty:
+        except queue.Empty:
             result_queue.put((processed, errors))
             return
 
@@ -108,9 +108,9 @@ def handle_logfile(fn, options):
         "dvid": options.dvid,
     }
 
-    pools = collections.defaultdict(Queue.Queue)
-    job_queue = Queue.Queue(maxsize=config['MAX_JOB_QUEUE_SIZE'])
-    result_queue = Queue.Queue(maxsize=config['MAX_RESULT_QUEUE_SIZE'])
+    pools = collections.defaultdict(queue.Queue)
+    job_queue = queue.Queue(maxsize=config['MAX_JOB_QUEUE_SIZE'])
+    result_queue = queue.Queue(maxsize=config['MAX_RESULT_QUEUE_SIZE'])
 
     workers = []
     for i in range(config['THREADS_PER_WORKER']):
